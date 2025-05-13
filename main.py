@@ -11,35 +11,35 @@ from dotenv import load_dotenv
 app = FastAPI()
 
 class CommitAuthor(BaseModel):
-    name: str
-    email: str
-    username: str
+    name: Optional[str] = None
+    email: Optional[str] = None
+    username: Optional[str] = None
 
 class Commit(BaseModel):
-    id: str
-    message: str
-    author: CommitAuthor
-    committer: CommitAuthor
-    added: List[str]
-    removed: List[str]
-    modified: List[str]
+    id: Optional[str] = None
+    message: Optional[str] = None
+    author: Optional[CommitAuthor] = None
+    committer: Optional[CommitAuthor] = None
+    added: Optional[List[str]] = None
+    removed: Optional[List[str]] = None
+    modified: Optional[List[str]] = None
 
 class HeadCommit(BaseModel):
-    id: str
-    message: str
-    author: CommitAuthor
-    committer: CommitAuthor
-    added: List[str]
-    removed: List[str]
-    modified: List[str]
+    id: Optional[str] = None
+    message: Optional[str] = None
+    author: Optional[CommitAuthor] = None
+    committer: Optional[CommitAuthor] = None
+    added: Optional[List[str]] = None
+    removed: Optional[List[str]] = None
+    modified: Optional[List[str]] = None
 
 class WebhookPayload(BaseModel):
-    ref: str
-    before: str
-    after: str
-    repository: Dict[str, Any]
-    head_commit: HeadCommit
-    commits: List[Commit]
+    ref: Optional[str] = None
+    before: Optional[str] = None
+    after: Optional[str] = None
+    repository: Optional[Dict[str, Any]] = None
+    head_commit: Optional[HeadCommit] = None
+    commits: Optional[List[Commit]] = None
 
 def is_charts_only_commit(modified_files: List[str]) -> bool:
     """Check if the commit only modified files in the charts directory."""
@@ -100,6 +100,21 @@ def build_and_push_docker_image(repo: str, sha: str, branch: str):
                 ["git", "clone", clone_url, repo_dir],
                 check=True
             )
+        
+        # Configure Git to use credentials for all operations
+        subprocess.run(
+            ["git", "config", "credential.helper", "store"],
+            cwd=repo_dir,
+            check=True
+        )
+        
+        # Set the remote URL with credentials
+        remote_url = f"https://{github_user}:{github_token}@github.com/{repo}.git"
+        subprocess.run(
+            ["git", "remote", "set-url", "origin", remote_url],
+            cwd=repo_dir,
+            check=True
+        )
         
         # Fetch all branches and tags
         subprocess.run(

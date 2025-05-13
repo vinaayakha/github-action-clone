@@ -17,7 +17,7 @@ gunicorn main:app \
     --worker-class uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:8000 \
     --reload \
-    --timeout 120 \
+    --timeout 900 \
     --access-logfile - \
     --error-logfile - \
     --log-level info 
